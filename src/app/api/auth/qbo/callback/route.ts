@@ -26,7 +26,9 @@ export async function GET(request: NextRequest) {
 
         if (existingToken && (Date.now() - existingToken.createdAt < 30000)) {
             console.log('Token already exists and is fresh. Redirecting to dashboard.');
-            return NextResponse.redirect(new URL('/', request.url));
+            const host = request.headers.get('host') || 'finza-ymgo.onrender.com';
+            const protocol = request.headers.get('x-forwarded-proto') || 'https';
+            return NextResponse.redirect(`${protocol}://${host}/`);
         }
 
         await qboClient.createToken(supabase, fullUrl);
@@ -43,7 +45,9 @@ export async function GET(request: NextRequest) {
         }
 
         // Successful login, redirect back to dashboard
-        return NextResponse.redirect(new URL('/', request.url));
+        const host = request.headers.get('host') || 'finza-ymgo.onrender.com';
+        const protocol = request.headers.get('x-forwarded-proto') || 'https';
+        return NextResponse.redirect(`${protocol}://${host}/`);
     } catch (error: any) {
         console.error('OAuth Callback Error:', {
             message: error.message,
@@ -59,3 +63,4 @@ export async function GET(request: NextRequest) {
         }, { status: 500 });
     }
 }
+
